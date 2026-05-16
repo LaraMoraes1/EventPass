@@ -18,6 +18,7 @@ import com.google.android.material.button.MaterialButton;
 public class EventDetailActivity extends Activity {
     private Long eventId;
     private Event currentEvent;
+    private MaterialButton highlightButton;
 
     @Override
     protected void onCreate(Bundle bundle) {
@@ -33,13 +34,14 @@ public class EventDetailActivity extends Activity {
         MaterialButton two = findViewById(R.id.actionTwo);
         MaterialButton three = findViewById(R.id.actionThree);
         MaterialButton four = findViewById(R.id.actionFour);
+        highlightButton = four;
 
         if (Session.isAdmin(this)) {
             one.setText("Editar evento");
             two.setText("Excluir evento");
             three.setText("Voltar");
             four.setVisibility(View.VISIBLE);
-            four.setText("Alterar destaque");
+            four.setText("Carregando destaque...");
             one.setOnClickListener(v -> startActivity(new Intent(this, EventFormActivity.class).putExtra("eventId", eventId)));
             two.setOnClickListener(v -> deleteEvent());
             three.setOnClickListener(v -> finish());
@@ -58,6 +60,7 @@ public class EventDetailActivity extends Activity {
         ApiClient.get().event(eventId).enqueue(new Ui<Event>(this) {
             @Override public void onOk(Event event) {
                 currentEvent = event;
+                updateHighlightButton();
                 ((TextView) findViewById(R.id.title)).setText(event.nome);
                 ((TextView) findViewById(R.id.subtitle)).setText(event.local + " - " + event.dataEvento + " as " + event.horario);
 
@@ -81,6 +84,13 @@ public class EventDetailActivity extends Activity {
         });
     }
 
+    private void updateHighlightButton() {
+        if (highlightButton == null || currentEvent == null || !Session.isAdmin(this)) {
+            return;
+        }
+        highlightButton.setText(Boolean.TRUE.equals(currentEvent.destaque) ? "Tirar do destaque" : "Colocar em destaque");
+    }
+
     private void toggleHighlight() {
         if (currentEvent == null) {
             Toast.makeText(this, "Evento ainda carregando", Toast.LENGTH_LONG).show();
@@ -88,6 +98,8 @@ public class EventDetailActivity extends Activity {
         }
         Ui<Event> callback = new Ui<Event>(this) {
             @Override public void onOk(Event data) {
+                currentEvent = data;
+                updateHighlightButton();
                 Toast.makeText(EventDetailActivity.this, Boolean.TRUE.equals(data.destaque) ? "Evento em destaque" : "Destaque removido", Toast.LENGTH_LONG).show();
                 loadEvent();
             }
