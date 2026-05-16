@@ -17,6 +17,7 @@ import com.google.android.material.button.MaterialButton;
 
 public class EventDetailActivity extends Activity {
     private Long eventId;
+    private Event currentEvent;
 
     @Override
     protected void onCreate(Bundle bundle) {
@@ -31,14 +32,18 @@ public class EventDetailActivity extends Activity {
         MaterialButton one = findViewById(R.id.actionOne);
         MaterialButton two = findViewById(R.id.actionTwo);
         MaterialButton three = findViewById(R.id.actionThree);
+        MaterialButton four = findViewById(R.id.actionFour);
 
         if (Session.isAdmin(this)) {
             one.setText("Editar evento");
             two.setText("Excluir evento");
             three.setText("Voltar");
+            four.setVisibility(View.VISIBLE);
+            four.setText("Alterar destaque");
             one.setOnClickListener(v -> startActivity(new Intent(this, EventFormActivity.class).putExtra("eventId", eventId)));
             two.setOnClickListener(v -> deleteEvent());
             three.setOnClickListener(v -> finish());
+            four.setOnClickListener(v -> toggleHighlight());
         } else {
             one.setText("Inscrever-se e gerar QR");
             two.setText("Abrir QR Code");
@@ -52,6 +57,7 @@ public class EventDetailActivity extends Activity {
     private void loadEvent() {
         ApiClient.get().event(eventId).enqueue(new Ui<Event>(this) {
             @Override public void onOk(Event event) {
+                currentEvent = event;
                 ((TextView) findViewById(R.id.title)).setText(event.nome);
                 ((TextView) findViewById(R.id.subtitle)).setText(event.local + " - " + event.dataEvento + " as " + event.horario);
 
@@ -67,11 +73,30 @@ public class EventDetailActivity extends Activity {
                 stats.removeAllViews();
                 add(stats, event.descricao);
                 add(stats, "Limite: " + event.limiteParticipantes + " participantes");
+                add(stats, Boolean.TRUE.equals(event.destaque) ? "Este evento esta em destaque no dashboard." : "Este evento nao esta em destaque.");
                 if (Session.isAdmin(EventDetailActivity.this)) {
-                    add(stats, "Admin: use os botoes abaixo para editar ou desativar este evento.");
+                    add(stats, "Admin: use os botoes abaixo para editar, desativar ou destacar este evento.");
                 }
             }
         });
+    }
+
+    private void toggleHighlight() {
+        if (currentEvent == null) {
+            Toast.makeText(this, "Evento ainda carregando", Toast.LENGTH_LONG).show();
+            return;
+        }
+        Ui<Event> callback = new Ui<Event>(this) {
+            @Override public void onOk(Event data) {
+                Toast.makeText(EventDetailActivity.this, Boolean.TRUE.equals(data.destaque) ? "Evento em destaque" : "Destaque removido", Toast.LENGTH_LONG).show();
+                loadEvent();
+            }
+        };
+        if (Boolean.TRUE.equals(currentEvent.destaque)) {
+            ApiClient.get().removeHighlight(eventId).enqueue(callback);
+        } else {
+            ApiClient.get().highlightEvent(eventId).enqueue(callback);
+        }
     }
 
     private void deleteEvent() {

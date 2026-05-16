@@ -43,7 +43,7 @@ public class AdminDashboardActivity extends Activity {
                 metric(box, String.valueOf(s.eventosAtivos), "Eventos ativos", "Eventos disponiveis para inscricao");
                 metric(box, String.valueOf(s.acessosRegistrados), "Acessos registrados", "Entradas e saidas controladas por QR");
                 metric(box, "60 min", "Regra de certificado", "Certificado liberado ao atingir a permanencia minima");
-                metric(box, "#1", "Evento em destaque", "Tech Talks 2026");
+                metric(box, "#1", "Evento em destaque", s.eventoDestaque == null ? "Nenhum evento definido" : s.eventoDestaque);
             }
         });
     }

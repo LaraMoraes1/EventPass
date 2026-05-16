@@ -5,4 +5,5 @@ public class DashboardStats {
     public long presentes;
     public long eventosAtivos;
     public long acessosRegistrados;
+    public String eventoDestaque;
 }

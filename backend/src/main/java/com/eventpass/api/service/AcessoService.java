@@ -47,9 +47,15 @@ public class AcessoService {
     }
 
     public DashboardResponse dashboard() {
-        return new DashboardResponse(usuarios.count(), acessos.countPresentes(), eventos.countByAtivoTrue(), acessos.count());
+        String destaque = eventos.findFirstByDestaqueTrueAndAtivoTrueOrderByCriadoEmDesc()
+                .map(Evento::getNome)
+                .orElse("Nenhum evento definido");
+        return new DashboardResponse(usuarios.count(), acessos.countPresentes(), eventos.countByAtivoTrue(), acessos.count(), destaque);
     }
 
+    public void delete(Long id) {
+        acessos.deleteById(id);
+    }
     private ScanResponse response(boolean sucesso, String status, String mensagem, Inscricao inscricao, Acesso acesso) {
         return new ScanResponse(
                 sucesso,

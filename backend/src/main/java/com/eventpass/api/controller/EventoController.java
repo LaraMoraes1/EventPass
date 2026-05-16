@@ -36,6 +36,16 @@ public class EventoController {
         return service.update(id, request);
     }
 
+    @PatchMapping("/{id}/highlight")
+    public Evento highlight(@PathVariable Long id) {
+        return service.highlight(id);
+    }
+
+    @DeleteMapping("/{id}/highlight")
+    public Evento removeHighlight(@PathVariable Long id) {
+        return service.removeHighlight(id);
+    }
+
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         service.delete(id);

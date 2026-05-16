@@ -13,9 +13,12 @@ public interface EventPassApi {
     @POST("events") Call<Event> createEvent(@Body Event event);
     @PUT("events/{id}") Call<Event> updateEvent(@Path("id") Long id, @Body Event event);
     @DELETE("events/{id}") Call<Void> deleteEvent(@Path("id") Long id);
+    @PATCH("events/{id}/highlight") Call<Event> highlightEvent(@Path("id") Long id);
+    @DELETE("events/{id}/highlight") Call<Event> removeHighlight(@Path("id") Long id);
     @POST("registrations") Call<Registration> subscribe(@Query("usuarioId") Long usuarioId, @Query("eventoId") Long eventoId);
     @GET("registrations/user/{usuarioId}") Call<List<Registration>> registrations(@Path("usuarioId") Long usuarioId);
     @POST("access/scan") Call<ScanResponse> scan(@Body ScanRequest request);
     @GET("access/dashboard") Call<DashboardStats> dashboard();
     @GET("access/history") Call<List<AccessLog>> history();
+    @DELETE("access/{id}") Call<Void> deleteAccess(@Path("id") Long id);
 }

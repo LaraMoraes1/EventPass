@@ -30,4 +30,8 @@ public class AcessoController {
     public DashboardResponse dashboard() {
         return service.dashboard();
     }
-}
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Long id) {
+        service.delete(id);
+    }}

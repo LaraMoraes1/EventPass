@@ -10,4 +10,5 @@ public class Event {
     public Integer limiteParticipantes;
     public String bannerUrl;
     public Boolean ativo;
+    public Boolean destaque;
 }

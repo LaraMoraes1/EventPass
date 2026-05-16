@@ -20,6 +20,7 @@ public class Evento {
     @Column(columnDefinition = "TEXT")
     private String bannerUrl;
     private boolean ativo = true;
+    private boolean destaque = false;
     private LocalDateTime criadoEm = LocalDateTime.now();
 
     public Long getId() { return id; }
@@ -40,6 +41,8 @@ public class Evento {
     public void setBannerUrl(String bannerUrl) { this.bannerUrl = bannerUrl; }
     public boolean isAtivo() { return ativo; }
     public void setAtivo(boolean ativo) { this.ativo = ativo; }
+    public boolean isDestaque() { return destaque; }
+    public void setDestaque(boolean destaque) { this.destaque = destaque; }
     public LocalDateTime getCriadoEm() { return criadoEm; }
     public void setCriadoEm(LocalDateTime criadoEm) { this.criadoEm = criadoEm; }
 }

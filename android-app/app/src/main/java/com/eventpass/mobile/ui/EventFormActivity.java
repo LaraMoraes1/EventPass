@@ -2,6 +2,7 @@ package com.eventpass.mobile.ui;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 import com.eventpass.mobile.R;
@@ -17,6 +18,7 @@ public class EventFormActivity extends Activity {
     private EditText time;
     private EditText limit;
     private EditText banner;
+    private CheckBox highlight;
 
     @Override
     protected void onCreate(Bundle bundle) {
@@ -30,6 +32,7 @@ public class EventFormActivity extends Activity {
         time = findViewById(R.id.timeInput);
         limit = findViewById(R.id.limitInput);
         banner = findViewById(R.id.bannerInput);
+        highlight = findViewById(R.id.highlightInput);
         findViewById(R.id.saveButton).setOnClickListener(v -> save());
         if (eventId != -1) {
             load();
@@ -46,6 +49,7 @@ public class EventFormActivity extends Activity {
                 time.setText(event.horario);
                 limit.setText(String.valueOf(event.limiteParticipantes));
                 banner.setText(event.bannerUrl);
+                highlight.setChecked(Boolean.TRUE.equals(event.destaque));
             }
         });
     }
@@ -70,6 +74,7 @@ public class EventFormActivity extends Activity {
         event.limiteParticipantes = parseLimit();
         event.bannerUrl = banner.getText().toString().trim();
         event.ativo = true;
+        event.destaque = highlight.isChecked();
 
         if (eventId == -1) {
             ApiClient.get().createEvent(event).enqueue(done());

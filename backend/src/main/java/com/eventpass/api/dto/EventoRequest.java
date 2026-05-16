@@ -10,5 +10,6 @@ public record EventoRequest(
         String horario,
         Integer limiteParticipantes,
         String bannerUrl,
-        Boolean ativo
+        Boolean ativo,
+        Boolean destaque
 ) {}

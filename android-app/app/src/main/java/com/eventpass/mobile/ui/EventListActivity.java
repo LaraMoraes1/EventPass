@@ -62,7 +62,7 @@ public class EventListActivity extends Activity {
         TextView meta = view.findViewById(R.id.eventMeta);
         TextView description = view.findViewById(R.id.eventDescription);
 
-        name.setText(event.nome);
+        name.setText(Boolean.TRUE.equals(event.destaque) ? "Destaque - " + event.nome : event.nome);
         meta.setText(event.local + " | " + formatDate(event.dataEvento) + " as " + event.horario + " | " + event.limiteParticipantes + " vagas");
         description.setText(event.descricao);
         if (event.bannerUrl != null && !event.bannerUrl.trim().isEmpty()) {

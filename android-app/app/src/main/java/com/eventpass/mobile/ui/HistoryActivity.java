@@ -1,22 +1,32 @@
 package com.eventpass.mobile.ui;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import com.eventpass.mobile.R;
 import com.eventpass.mobile.api.ApiClient;
 import com.eventpass.mobile.model.AccessLog;
+import com.google.android.material.button.MaterialButton;
 import java.util.List;
 
 public class HistoryActivity extends Activity {
+    private LinearLayout list;
+
     @Override
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView(R.layout.screen_list);
-        LinearLayout list = findViewById(R.id.listContainer);
+        list = findViewById(R.id.listContainer);
+        loadHistory();
+    }
+
+    private void loadHistory() {
+        list.removeAllViews();
         title(list, "Historico de acessos", "Entradas, saidas e criterios de certificado");
         ApiClient.get().history().enqueue(new Ui<List<AccessLog>>(this) {
             @Override public void onOk(List<AccessLog> logs) {
@@ -58,11 +68,30 @@ public class HistoryActivity extends Activity {
         ((TextView) view.findViewById(R.id.logEvent)).setText(evento);
         ((TextView) view.findViewById(R.id.logTimes)).setText("Entrada: " + entrada + "\nSaida: " + saida + "\nPermanencia: " + tempo);
         ((TextView) view.findViewById(R.id.logCertificate)).setText(certificateMessage(log.permanenciaMinutos));
+        ((MaterialButton) view.findViewById(R.id.moreButton)).setOnClickListener(v -> confirmRemove(log));
 
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(-1, -2);
         params.setMargins(0, 0, 0, 14);
         view.setLayoutParams(params);
         list.addView(view);
+    }
+
+    private void confirmRemove(AccessLog log) {
+        new AlertDialog.Builder(this)
+                .setTitle("Remover acesso")
+                .setMessage("Remover este registro do historico? Use isso apenas para corrigir um teste ou demonstracao.")
+                .setNegativeButton("Cancelar", null)
+                .setPositiveButton("Remover", (dialog, which) -> removeAccess(log.id))
+                .show();
+    }
+
+    private void removeAccess(Long id) {
+        ApiClient.get().deleteAccess(id).enqueue(new Ui<Void>(this) {
+            @Override public void onOk(Void data) {
+                Toast.makeText(HistoryActivity.this, "Registro removido", Toast.LENGTH_LONG).show();
+                loadHistory();
+            }
+        });
     }
 
     private String statusLabel(String status) {
