@@ -5,6 +5,7 @@ import com.eventpass.api.model.*;
 import com.eventpass.api.repository.*;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -34,7 +35,13 @@ public class InscricaoService {
             inscricao.setUsuario(usuario);
             inscricao.setEvento(evento);
             inscricao.setQrToken("EVP-" + UUID.randomUUID());
-            return toResponse(inscricoes.save(inscricao));
+            try {
+                return toResponse(inscricoes.save(inscricao));
+            } catch (DataIntegrityViolationException ex) {
+                return inscricoes.findByUsuarioIdAndEventoId(usuarioId, eventoId)
+                        .map(this::toResponse)
+                        .orElseThrow(() -> ex);
+            }
         });
     }
 
