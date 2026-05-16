@@ -18,7 +18,7 @@ public class EventoService {
     }
 
     public List<Evento> list() {
-        return eventos.findAll().stream()
+        return eventos.findByAtivoTrue().stream()
                 .sorted(Comparator.comparing(Evento::isDestaque).reversed().thenComparing(Evento::getId))
                 .toList();
     }
