@@ -3,6 +3,7 @@ package com.eventpass.api.service;
 import com.eventpass.api.dto.InscricaoResponse;
 import com.eventpass.api.model.*;
 import com.eventpass.api.repository.*;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -46,7 +47,10 @@ public class InscricaoService {
     }
 
     public List<InscricaoResponse> byUser(Long usuarioId) {
-        return inscricoes.findByUsuarioIdOrderByIdDesc(usuarioId).stream().map(this::toResponse).toList();
+        return inscricoes.findByUsuarioId(usuarioId).stream()
+                .sorted(Comparator.comparing(Inscricao::getId).reversed())
+                .map(this::toResponse)
+                .toList();
     }
 
     private InscricaoResponse toResponse(Inscricao inscricao) {
