@@ -8,6 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface InscricaoRepository extends JpaRepository<Inscricao, Long> {
     Optional<Inscricao> findByQrToken(String qrToken);
     Optional<Inscricao> findByUsuarioIdAndEventoId(Long usuarioId, Long eventoId);
-    List<Inscricao> findByUsuarioId(Long usuarioId);
+    List<Inscricao> findByUsuarioIdOrderByIdDesc(Long usuarioId);
     long countByEventoId(Long eventoId);
 }

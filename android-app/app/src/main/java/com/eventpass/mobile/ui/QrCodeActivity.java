@@ -25,9 +25,12 @@ public class QrCodeActivity extends Activity {
             @Override public void onOk(List<Registration> registrations) {
                 Registration selected = null;
                 for (Registration item : registrations) {
-                    if (eventId == -1 || item.eventoId != null && item.eventoId == eventId) {
+                    if (eventId != -1 && item.eventoId != null && item.eventoId == eventId) {
                         selected = item;
                         break;
+                    }
+                    if (eventId == -1 && (selected == null || item.id != null && selected.id != null && item.id > selected.id)) {
+                        selected = item;
                     }
                 }
                 if (selected == null) {

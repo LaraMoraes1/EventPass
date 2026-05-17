@@ -46,7 +46,7 @@ public class InscricaoService {
     }
 
     public List<InscricaoResponse> byUser(Long usuarioId) {
-        return inscricoes.findByUsuarioId(usuarioId).stream().map(this::toResponse).toList();
+        return inscricoes.findByUsuarioIdOrderByIdDesc(usuarioId).stream().map(this::toResponse).toList();
     }
 
     private InscricaoResponse toResponse(Inscricao inscricao) {
