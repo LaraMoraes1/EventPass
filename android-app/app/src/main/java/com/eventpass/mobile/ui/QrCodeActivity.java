@@ -1,6 +1,7 @@
 package com.eventpass.mobile.ui;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -13,36 +14,74 @@ import com.eventpass.mobile.model.Registration;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.common.BitMatrix;
+import java.util.ArrayList;
 import java.util.List;
 
 public class QrCodeActivity extends Activity {
+    private long eventId;
+
     @Override
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView(R.layout.screen_qr);
-        long eventId = getIntent().getLongExtra("eventId", -1);
+        eventId = getIntent().getLongExtra("eventId", -1);
+        loadRegistrations();
+    }
+
+    private void loadRegistrations() {
         ApiClient.get().registrations(Session.userId(this)).enqueue(new Ui<List<Registration>>(this) {
             @Override public void onOk(List<Registration> registrations) {
-                Registration selected = null;
-                for (Registration item : registrations) {
-                    if (eventId != -1 && item.eventoId != null && item.eventoId == eventId) {
-                        selected = item;
-                        break;
-                    }
-                    if (eventId == -1 && (selected == null || item.id != null && selected.id != null && item.id > selected.id)) {
-                        selected = item;
-                    }
-                }
-                if (selected == null) {
+                if (registrations == null || registrations.isEmpty()) {
                     Toast.makeText(QrCodeActivity.this, "Inscreva-se em um evento primeiro", Toast.LENGTH_LONG).show();
                     finish();
                     return;
                 }
-                ((TextView) findViewById(R.id.title)).setText(selected.eventoNome);
-                ((TextView) findViewById(R.id.tokenText)).setText(selected.qrToken);
-                ((ImageView) findViewById(R.id.qrImage)).setImageBitmap(makeQr(selected.qrToken));
+
+                if (eventId != -1) {
+                    Registration selected = findByEvent(registrations, eventId);
+                    if (selected == null) {
+                        Toast.makeText(QrCodeActivity.this, "Inscricao nao encontrada para este evento", Toast.LENGTH_LONG).show();
+                        finish();
+                        return;
+                    }
+                    showQr(selected);
+                    return;
+                }
+
+                if (registrations.size() == 1) {
+                    showQr(registrations.get(0));
+                } else {
+                    chooseRegistration(registrations);
+                }
             }
         });
+    }
+
+    private Registration findByEvent(List<Registration> registrations, long targetEventId) {
+        for (Registration item : registrations) {
+            if (item.eventoId != null && item.eventoId == targetEventId) {
+                return item;
+            }
+        }
+        return null;
+    }
+
+    private void chooseRegistration(List<Registration> registrations) {
+        List<String> names = new ArrayList<>();
+        for (Registration item : registrations) {
+            names.add(item.eventoNome == null ? "Evento" : item.eventoNome);
+        }
+        new AlertDialog.Builder(this)
+                .setTitle("Escolha o evento")
+                .setItems(names.toArray(new String[0]), (dialog, which) -> showQr(registrations.get(which)))
+                .setOnCancelListener(dialog -> finish())
+                .show();
+    }
+
+    private void showQr(Registration selected) {
+        ((TextView) findViewById(R.id.title)).setText(selected.eventoNome);
+        ((TextView) findViewById(R.id.tokenText)).setText(selected.qrToken);
+        ((ImageView) findViewById(R.id.qrImage)).setImageBitmap(makeQr(selected.qrToken));
     }
 
     private Bitmap makeQr(String token) {
