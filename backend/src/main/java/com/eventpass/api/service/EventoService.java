@@ -3,8 +3,11 @@ package com.eventpass.api.service;
 import com.eventpass.api.dto.EventoRequest;
 import com.eventpass.api.model.Evento;
 import com.eventpass.api.repository.EventoRepository;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -18,9 +21,19 @@ public class EventoService {
     }
 
     public List<Evento> list() {
-        return eventos.findByAtivoTrue().stream()
+        List<Evento> ativos = eventos.findAll().stream()
+                .filter(Evento::isAtivo)
                 .sorted(Comparator.comparing(Evento::isDestaque).reversed().thenComparing(Evento::getId))
                 .toList();
+        List<Evento> unicos = new ArrayList<>();
+        Set<String> nomes = new HashSet<>();
+        for (Evento evento : ativos) {
+            String chave = evento.getNome() == null ? "evento-" + evento.getId() : evento.getNome().trim().toLowerCase();
+            if (nomes.add(chave)) {
+                unicos.add(evento);
+            }
+        }
+        return unicos;
     }
 
     public Evento get(Long id) {
