@@ -4,8 +4,6 @@ Projeto feito para a faculdade com o objetivo de controlar a entrada e saída de
 
 A ideia é simples: o participante se cadastra no app, escolhe um evento, se inscreve e recebe um QR Code. O administrador usa outro celular para escanear esse QR e registrar entrada ou saída.
 
-## Tecnologias usadas
-
 - Android Studio
 - Java
 - XML tradicional para as telas
