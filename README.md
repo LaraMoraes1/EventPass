@@ -1,78 +1,126 @@
-# EventPass - Smart Event Access Mobile
+﻿# EventPass
 
-Sistema completo para controle de acesso em palestras e eventos usando Android Java/XML, Spring Boot, PostgreSQL online e QR Code com ZXing.
+Projeto feito para a faculdade com o objetivo de controlar a entrada e saída de participantes em eventos usando QR Code.
 
-## Estrutura
+A ideia é simples: o participante se cadastra no app, escolhe um evento, se inscreve e recebe um QR Code. O administrador usa outro celular para escanear esse QR e registrar entrada ou saída.
 
-- `android-app/`: aplicativo Android tradicional em Java, XML e Material Design.
-- `backend/`: API REST Spring Boot em Java.
-- `database/schema.sql`: estrutura PostgreSQL com dados de exemplo.
-- `docs/demo-checklist.md`: roteiro rápido para apresentação ao vivo.
+## Tecnologias usadas
 
-## Como executar a API
+- Android Studio
+- Java
+- XML tradicional para as telas
+- Material Design
+- Retrofit para consumir a API
+- ZXing para gerar e ler QR Code
+- Spring Boot no backend
+- PostgreSQL online no Supabase
+- Render para hospedar a API
 
-1. Crie um banco PostgreSQL online em Neon, Supabase, Render, Railway ou outro serviço.
-2. Execute o script `database/schema.sql`.
-3. Configure as variáveis de ambiente:
+## Estrutura do projeto
 
-```powershell
-$env:DB_URL="jdbc:postgresql://HOST:5432/NOME_DO_BANCO"
-$env:DB_USER="usuario"
-$env:DB_PASSWORD="senha"
+- `android-app/`: aplicativo Android.
+- `backend/`: API Spring Boot.
+- `database/schema.sql`: script do banco PostgreSQL.
+
+## O que o app faz
+
+- Cadastro e login de usuários.
+- Dois tipos de usuário: administrador e participante.
+- Cadastro, edição e destaque de eventos.
+- Inscrição de participantes em eventos.
+- Geração de QR Code por inscrição.
+- Scanner de QR Code pelo administrador.
+- Registro de entrada e saída.
+- Histórico de acessos.
+- Dashboard administrativo.
+- Controle de permanência para certificado.
+
+## Como funciona o QR Code
+
+O QR Code não é apenas do usuário. Ele pertence a uma inscrição.
+
+Exemplo: se uma pessoa se inscrever em dois eventos, ela terá dois QR Codes diferentes. Isso ajuda o sistema a saber exatamente qual participante está entrando em qual evento.
+
+## Como rodar o backend
+
+Entre na pasta do backend:
+
+```bash
+cd backend
 ```
 
-4. Inicie a API:
+Configure as variáveis do banco:
 
-```powershell
-cd backend
+```bash
+DB_URL=jdbc:postgresql://host:5432/postgres
+DB_USER=usuario
+DB_PASSWORD=senha
+```
+
+Depois execute a API:
+
+```bash
 mvn spring-boot:run
 ```
 
-A API sobe em `http://localhost:8080`.
+A API local roda em:
 
-## Como abrir o app no Android Studio
+```text
+http://localhost:8080
+```
+
+No projeto publicado, a API está configurada para rodar online pelo Render.
+
+## Como abrir o app Android
 
 1. Abra a pasta `android-app/` no Android Studio.
-2. Sincronize o Gradle.
-3. Em `ApiClient.java`, ajuste `BASE_URL`:
-   - Emulador Android: `http://10.0.2.2:8080/api/`
-   - Celular físico na mesma rede: `http://IP_DO_SEU_PC:8080/api/`
-   - API publicada online: `https://sua-api.com/api/`
-4. Rode no celular Android.
+2. Espere o Gradle sincronizar.
+3. Verifique a URL da API em:
 
-Checklist no Android Studio:
+```text
+android-app/app/src/main/java/com/eventpass/mobile/api/ApiClient.java
+```
 
-1. Use JDK 21 no backend Spring Boot.
-2. Aguarde o download das dependências Gradle.
-3. Conecte o celular com Depuração USB ativada.
-4. Garanta que celular e notebook estejam na mesma rede Wi-Fi quando a API estiver rodando localmente.
-5. Para celular físico, descubra o IP do notebook com `ipconfig` e use algo como `http://192.168.0.10:8080/api/`.
-6. Se publicar a API online, use HTTPS no `BASE_URL`.
+4. Conecte um celular Android com depuração USB ativada.
+5. Clique em Run.
 
-Arquivos importantes do app:
+## Arquivos importantes no Android
 
-- `android-app/app/src/main/java/com/eventpass/mobile/api/ApiClient.java`: URL da API.
-- `android-app/app/src/main/java/com/eventpass/mobile/api/EventPassApi.java`: endpoints Retrofit.
-- `android-app/app/src/main/java/com/eventpass/mobile/ui/QrCodeActivity.java`: geração do QR Code com ZXing.
-- `android-app/app/src/main/java/com/eventpass/mobile/ui/ScannerActivity.java`: leitura pela câmera com ZXing.
-- `android-app/app/src/main/res/layout/`: telas XML tradicionais.
+- `ApiClient.java`: configura a URL da API.
+- `EventPassApi.java`: rotas usadas pelo Retrofit.
+- `QrCodeActivity.java`: tela que gera o QR Code.
+- `ScannerActivity.java`: tela que escaneia o QR Code.
+- `res/layout/`: telas feitas em XML.
 
-## Usuários de teste
+## Arquivos importantes no backend
 
-- Admin: `admin@eventpass.com` / `123456`
-- Participante: `ana@eventpass.com` / `123456`
+- `controller/`: recebe as requisições da API.
+- `service/`: regras de negócio.
+- `repository/`: acesso ao banco com JPA.
+- `model/`: entidades do banco.
+- `dto/`: objetos de entrada e saída da API.
 
-## Fluxo principal da demonstração
+## Usuário de teste
 
-1. Login como participante.
-2. Entrar em um evento.
-3. Abrir QR Code pessoal.
-4. Login como administrador em outro celular.
-5. Abrir Scanner.
-6. Escanear QR: primeira leitura registra entrada; segunda leitura registra saída.
-7. Ver Dashboard e Histórico atualizados.
+Administrador:
 
-## Bibliotecas principais
+```text
+admin@eventpass.com
+123456
+```
 
-- Android: Material Components, Retrofit, Gson, ZXing Android Embedded.
-- Backend: Spring Boot Web, Spring Data JPA, PostgreSQL Driver, Validation.
+Também é possível criar participantes pelo próprio app.
+
+## Fluxo de demonstração
+
+1. Entrar como participante.
+2. Escolher um evento.
+3. Fazer inscrição.
+4. Abrir o QR Code.
+5. Entrar como administrador em outro celular.
+6. Escanear o QR Code.
+7. Conferir entrada, saída e histórico.
+
+## Observação
+
+O app foi feito para Android. O APK não instala em iPhone.
